@@ -40,6 +40,7 @@ def generate_script():
     - Scold me for wasting time.
     - Tell me why 'average' effort leads to failure.
     - Explain that entropy is chasing me and I need to build order (knowledge) NOW.
+    - Keep it under 100 words to save audio credits, but make every word count.
     
     IMPORTANT: Respond strictly in HINDI language only. Do not use asterisks or markdown.
     """
