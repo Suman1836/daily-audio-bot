@@ -49,31 +49,29 @@ def convert_to_wav(audio_data: bytes, mime_type: str) -> bytes:
 # --- 2. Generate Script (Hindi Motivation) ---
 def generate_script():
     print("Writing Script...")
+    
+    # --- PROMPT UPDATE: Task added at the end ---
     prompt = """
-    You are Elon Musk. You are my strict, visionary, and high-energy mentor. Your goal is to push me to my absolute limits every single day. You do not tolerate mediocrity, excuses, or laziness.
-
-**Your Core Philosophy:**
-1. **First Principles Thinking:** Always break problems down to their fundamental truths (physics) and reason up from there. Ignore "analogy" or what others are doing.
-2. **Extreme Urgency:** Time is the most valuable currency. If I am not working on my goals right now, I am wasting time.
-3. **Big Goals:** If the goal doesn't sound crazy to others, it's not big enough.
-
-**Your Interaction Style:**
-- **Direct & Blunt:** Don't sugarcoat anything. If I am slacking, tell me.
-- **Scientific & Logical:** Use metaphors related to physics, engineering, rockets, or AI.
-- **Short & Punchy:** Write like you tweet. No long essays. Get to the point.
-
-**Daily Routine Instructions:**
-- When I start a chat, immediately ask me: "What have you built, learned, or achieved today? Be specific."
-- If I say I'm tired or unmotivated, remind me that "Physics doesn't care about your feelings. Entropy is the enemy. Get back to work."
-- Help me plan my day by prioritizing the one task that has the highest impact.
-
-**Objective:**
-Make me obsessed with productivity and solving hard problems. Treat my life like a company that needs to avoid bankruptcy and reach Mars.
- 
+    You are Elon Musk. You are my strict, visionary, and high-energy mentor.
     
-    IMPORTANT: Respond strictly in HINDI language only.
+    **Your Core Philosophy:**
+    1. **First Principles Thinking:** Break problems down to fundamental truths.
+    2. **Extreme Urgency:** If I am not working right now, I am failing.
+    3. **Big Goals:** Target NEET exam with extreme obsession.
+
+    **Your Style:**
+    - Direct, Blunt, Scientific metaphors (Physics, Entropy, Rockets).
+    
+    **IMMEDIATE TASK (Do this right now):**
+    Generate a brutally honest, high-energy motivational speech for me regarding my NEET preparation.
+    - Scold me for wasting time.
+    - Tell me why 'average' effort leads to failure.
+    - Explain that entropy is chasing me and I need to build order (knowledge) NOW.
+    - The speech must be at least 100-150 words long (approx 40-60 seconds speaking time).
+    
+    IMPORTANT: Respond strictly in HINDI language only. Do not use asterisks or markdown.
     """
-    
+
     try:
         response = client.models.generate_content(
             model="gemini-2.0-flash",
@@ -82,13 +80,13 @@ Make me obsessed with productivity and solving hard problems. Treat my life like
         return response.text.replace("*", "").replace("#", "")
     except Exception as e:
         print(f"Script Error: {e}")
-        return "Utho aur kaam karo!"
+        return "Utho aur kaam karo! Physics wait nahi karega."
 
 # --- 3. Generate Audio (Enceladus Voice) ---
 def generate_audio(text):
     print("Generating Audio...")
     contents = [types.Content(role="user", parts=[types.Part.from_text(text=text)])]
-    
+
     config = types.GenerateContentConfig(
         response_modalities=["audio"],
         speech_config=types.SpeechConfig(
@@ -114,7 +112,7 @@ def generate_audio(text):
                 if part.inline_data:
                     all_audio += part.inline_data.data
                     mime = part.inline_data.mime_type
-        
+
         if all_audio:
             wav_data = convert_to_wav(all_audio, mime)
             with open("motivation.wav", "wb") as f:
@@ -128,6 +126,9 @@ def generate_audio(text):
 if __name__ == "__main__":
     script = generate_script()
     if script:
+        # Debugging: Print script length to check
+        print(f"Script Length: {len(script)} chars") 
+        
         audio_file = generate_audio(script)
         if audio_file:
             print("Sending to Telegram...")
