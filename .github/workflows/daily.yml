@@ -2,7 +2,8 @@ name: Daily Audio Bot
 
 on:
   schedule:
-    - cron: '45 2 * * *' # 8:15 AM IST
+    # প্রতিদিন সকাল ৮:১৫ (IST)
+    - cron: '45 2 * * *'
   workflow_dispatch:
 
 jobs:
@@ -19,12 +20,13 @@ jobs:
           python-version: '3.11'
 
       - name: Install libraries
-        run: pip install google-genai requests
+        # elevenlabs লাইব্রেরি যোগ করা হলো
+        run: pip install google-genai elevenlabs requests
 
       - name: Run script
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          ELEVENLABS_API_KEY: ${{ secrets.ELEVENLABS_API_KEY }}
           TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: python main.py
-        
