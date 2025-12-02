@@ -12,40 +12,55 @@ CHAT_ID = os.environ.get("TELEGRAM_CHAT_ID", "").strip().replace('"', '')
 # --- Settings ---
 # তোমার দেওয়া Voice ID
 VOICE_ID = "SGbOfpm28edC83pZ9iGb"
-# Flash v2.5 Model ID
+# Flash v2.5 Model ID (Super Fast & Real)
 MODEL_ID = "eleven_flash_v2_5"
 
 # --- Clients Initialize ---
 client_gemini = genai.Client(api_key=GEMINI_KEY)
 client_eleven = ElevenLabs(api_key=ELEVENLABS_KEY)
 
-# --- 1. Generate Script (Gemini) ---
+# --- 1. Generate Script (The Elon Musk Persona) ---
 def generate_script():
-    print("Generating Script...")
-    prompt = """
-    Act as Elon Musk. Write a short, high-intensity motivational message for a student.
+    print("Writing Script (Elon Mode)...")
     
-    Constraints:
-    1. Maximum 2-3 sentences.
-    2. Max 50 words (To save audio credits).
-    3. Brutally honest and energetic.
+    # সেই আগের পাওয়ারফুল প্রম্পট
+    prompt = """
+    You are Elon Musk. You are my strict, visionary, and high-energy mentor.
+    
+    **Your Core Philosophy:**
+    1. **First Principles Thinking:** Break problems down to fundamental truths.
+    2. **Extreme Urgency:** If I am not working right now, I am failing.
+    3. **Big Goals:** Target NEET exam with extreme obsession.
+
+    **Your Style:**
+    - Direct, Blunt, Scientific metaphors (Physics, Entropy, Rockets).
+    
+    **IMMEDIATE TASK (Do this right now):**
+    Generate a brutally honest, high-energy motivational speech for me regarding my NEET preparation.
+    - Scold me for wasting time.
+    - Tell me why 'average' effort leads to failure.
+    - Explain that entropy is chasing me and I need to build order (knowledge) NOW.
+    
+    IMPORTANT: Respond strictly in HINDI language only. Do not use asterisks or markdown.
     """
+
     try:
         response = client_gemini.models.generate_content(
-            model="gemini-2.0-flash",
+            model="gemini-2.5-flash",
             contents=prompt
         )
+        # ক্লিন টেক্সট
         return response.text.replace("*", "").replace("#", "").strip()
     except Exception as e:
         print(f"Script Error: {e}")
-        return "Wake up. The competition is not sleeping. Get to work."
+        return "Utho aur kaam karo! Physics wait nahi karega."
 
 # --- 2. Generate Audio (ElevenLabs Flash v2.5) ---
 def generate_audio(text):
-    print("Generating Audio via ElevenLabs...")
+    print("Generating Audio via ElevenLabs Flash v2.5...")
     
     try:
-        # অডিও জেনারেট করা হচ্ছে (Stream হিসেবে আসে)
+        # অডিও জেনারেট করা হচ্ছে
         audio_generator = client_eleven.text_to_speech.convert(
             text=text,
             voice_id=VOICE_ID,
@@ -71,8 +86,8 @@ def send_telegram(audio_file, text_script):
     
     try:
         with open(audio_file, "rb") as f:
-            caption = f"🎙️ **Daily Fuel (Flash v2.5)**\n\n{text_script}"
-            if len(caption) > 1024: caption = caption[:1021] + "..."
+            # ক্যাপশনে ছোট করে টেক্সট থাকবে
+            caption = "🚀 **Elon Musk Mode (Flash v2.5)**"
             
             requests.post(url, data={"chat_id": CHAT_ID, "caption": caption}, files={"audio": f})
         print("✅ Audio Sent Successfully!")
@@ -83,7 +98,7 @@ def send_telegram(audio_file, text_script):
 if __name__ == "__main__":
     script = generate_script()
     if script:
-        print(f"Script: {script}")
+        print(f"Script Generated: {script[:50]}...") # লগ এ দেখার জন্য
         audio = generate_audio(script)
         if audio:
             send_telegram(audio, script)
