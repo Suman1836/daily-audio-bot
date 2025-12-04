@@ -20,13 +20,13 @@ jobs:
           python-version: '3.11'
 
       - name: Install libraries
-        # openai এবং elevenlabs ইনস্টল করা হলো
-        run: pip install openai elevenlabs requests
+        # google-genai, openai এবং requests লাইব্রেরি
+        run: pip install google-genai openai requests
 
       - name: Run script
         env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
-          ELEVENLABS_API_KEY: ${{ secrets.ELEVENLABS_API_KEY }}
           TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: python main.py
