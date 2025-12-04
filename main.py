@@ -12,16 +12,14 @@ BOT_TOKEN = os.environ.get("TELEGRAM_TOKEN", "").strip().replace('"', '')
 CHAT_ID = os.environ.get("TELEGRAM_CHAT_ID", "").strip().replace('"', '')
 
 # --- Clients ---
-# 1. DeepSeek (Script Writing)
 client_deepseek = OpenAI(
     base_url="https://openrouter.ai/api/v1",
     api_key=OPENROUTER_KEY,
 )
 
-# 2. Gemini (Voice Generation)
 client_gemini = genai.Client(api_key=GEMINI_KEY)
 
-# --- Helper Functions (WAV Conversion) ---
+# --- Helper Functions (WAV Conversion - তোমার দেওয়া কোড থেকে) ---
 def parse_audio_mime_type(mime_type: str) -> dict:
     bits_per_sample = 16
     rate = 24000
@@ -62,6 +60,7 @@ def generate_script():
     Generate a brutally honest, high-energy motivational speech for me regarding my NEET preparation.
     - Scold me for wasting time.
     - Explain that entropy is chasing me and I need to build order (knowledge) NOW.
+    - Keep it strictly under 100 words.
     
     IMPORTANT: Respond strictly in HINDI language only. Do not use asterisks or hashtags.
     """
@@ -76,9 +75,9 @@ def generate_script():
         print(f"Script Error: {e}")
         return "Utho aur kaam karo! Physics wait nahi karega."
 
-# --- 2. Generate Audio (Gemini TTS - Fenrir) ---
+# --- 2. Generate Audio (Gemini TTS - Zephyr) ---
 def generate_audio(text):
-    print("Generating Audio via Gemini TTS (Enceladus)...")
+    print("Generating Audio via Gemini TTS (Zephyr)...")
     
     contents = [types.Content(role="user", parts=[types.Part.from_text(text=text)])]
     
@@ -87,8 +86,7 @@ def generate_audio(text):
         speech_config=types.SpeechConfig(
             voice_config=types.VoiceConfig(
                 prebuilt_voice_config=types.PrebuiltVoiceConfig(
-                    # Enceladus হলো Gemini-র গভীর পুরুষকণ্ঠ (Enceladus-এর ফ্রি বিকল্প)
-                    voice_name="Enceladus" 
+                    voice_name="Zephyr" # তোমার কোড অনুযায়ী Zephyr ব্যবহার করা হলো
                 )
             )
         )
@@ -125,7 +123,7 @@ def send_telegram(audio_file):
     url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendAudio"
     try:
         with open(audio_file, "rb") as f:
-            caption = "🚀 **Elon Musk Mode**\n🧠 Script: DeepSeek V3.2\n🎙️ Voice: Gemini (Enceladus)"
+            caption = "🚀 **Elon Musk Mode**\n🧠 Script: DeepSeek V3.2\n🎙️ Voice: Gemini (Zephyr)"
             requests.post(url, data={"chat_id": CHAT_ID, "caption": caption}, files={"audio": f})
         print("✅ Sent Successfully!")
     except Exception as e:
