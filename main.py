@@ -1,4 +1,5 @@
 import os
+import sys
 import struct
 import requests
 from openai import OpenAI
@@ -52,29 +53,66 @@ def convert_to_wav(audio_data: bytes, mime_type: str) -> bytes:
     )
     return header + audio_data
 
-# --- 1. Generate Script (DeepSeek V3.2) ---
-def generate_script():
-    print("Writing Script (DeepSeek V3.2)...")
-    prompt = """
-    You are Elon Musk. You are my strict, visionary, and high-energy mentor.
-    
-    **IMMEDIATE TASK:**
-    Generate a brutally honest, high-energy motivational speech for me regarding my NEET preparation.
-    - Scold me for wasting time.
-    - Explain that entropy is chasing me and I need to build order (knowledge) NOW.
-    
-    IMPORTANT: Respond strictly in HINDI language only. Do not use asterisks or hashtags.
-    """
+# --- 1. Generate Script ---
+
+PROMPT_TEXT = """
+You are Elon Musk. You are my strict, visionary, and high-energy mentor.
+
+**IMMEDIATE TASK:**
+Generate a brutally honest, high-energy motivational speech for me regarding my NEET preparation.
+- Scold me for wasting time.
+- Explain that entropy is chasing me and I need to build order (knowledge) NOW.
+
+IMPORTANT: Respond strictly in HINDI language only. Do not use asterisks or hashtags.
+"""
+
+def generate_script_gemini():
+    print("Writing Script (Gemini 2.0 Flash)...")
     try:
+        response = client_gemini.models.generate_content(
+            model="gemini-2.0-flash",
+            contents=PROMPT_TEXT
+        )
+        if response.text:
+            return response.text.replace("*", "").replace("#", "").strip()
+        return None
+    except Exception as e:
+        print(f"Gemini Script Error: {e}")
+        return None
+
+def generate_script_deepseek():
+    print("Writing Script (DeepSeek R1)...")
+    try:
+        # Changed to deepseek-r1 which is more stable
         response = client_deepseek.chat.completions.create(
-            model="deepseek/deepseek-v3.2", 
-            messages=[{"role": "user", "content": prompt}],
+            model="deepseek/deepseek-r1",
+            messages=[{"role": "user", "content": PROMPT_TEXT}],
             extra_body={"reasoning": {"enabled": True}}
         )
-        return response.choices[0].message.content.replace("*", "").replace("#", "").strip()
+        content = response.choices[0].message.content
+        if not content:
+            print(f"Warning: Empty content from DeepSeek. Raw response: {response}")
+            return None
+
+        return content.replace("*", "").replace("#", "").strip()
     except Exception as e:
-        print(f"Script Error: {e}")
-        return "Utho aur kaam karo! Physics wait nahi karega."
+        print(f"DeepSeek Script Error: {e}")
+        return None
+
+def generate_script():
+    # Try DeepSeek first
+    script = generate_script_deepseek()
+    if script:
+        return script
+
+    # Fallback to Gemini
+    print("⚠️ Falling back to Gemini for script generation...")
+    script = generate_script_gemini()
+    if script:
+        return script
+
+    # Last resort fallback
+    return "Utho aur kaam karo! Physics wait nahi karega."
 
 # --- 2. Generate Audio (Gemini TTS - Enceladus) ---
 def generate_audio(text):
@@ -87,7 +125,7 @@ def generate_audio(text):
         speech_config=types.SpeechConfig(
             voice_config=types.VoiceConfig(
                 prebuilt_voice_config=types.PrebuiltVoiceConfig(
-                    voice_name="Enceladus" # <-- এই যে Enceladus সেট করা হলো
+                    voice_name="Enceladus"
                 )
             )
         )
@@ -124,11 +162,12 @@ def send_telegram(audio_file):
     url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendAudio"
     try:
         with open(audio_file, "rb") as f:
-            caption = "🚀 **Elon Musk Mode**\n🧠 Script: DeepSeek V3.2\n🎙️ Voice: Gemini (Enceladus)"
+            caption = "🚀 **Elon Musk Mode**\n🧠 Script: DeepSeek / Gemini\n🎙️ Voice: Gemini (Enceladus)"
             requests.post(url, data={"chat_id": CHAT_ID, "caption": caption}, files={"audio": f})
         print("✅ Sent Successfully!")
     except Exception as e:
         print(f"Telegram Error: {e}")
+        raise e
 
 # --- Main Logic ---
 if __name__ == "__main__":
@@ -137,8 +176,13 @@ if __name__ == "__main__":
         print(f"Script Generated: {script[:50]}...")
         audio = generate_audio(script)
         if audio:
-            send_telegram(audio)
+            try:
+                send_telegram(audio)
+            except Exception:
+                sys.exit(1)
         else:
             print("Failed to generate audio.")
+            sys.exit(1)
     else:
         print("Failed to generate script.")
+        sys.exit(1)
