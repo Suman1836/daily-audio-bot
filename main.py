@@ -76,7 +76,7 @@ def generate_script():
         print(f"Script Error: {e}")
         return "Utho aur kaam karo! Physics wait nahi karega."
 
-# --- 2. Generate Audio (Gemini TTS - Enceladus) ---
+# --- 2. Generate Audio (Gemini TTS - Fenrir) ---
 def generate_audio(text):
     print("Generating Audio via Gemini TTS (Enceladus)...")
     
@@ -87,7 +87,8 @@ def generate_audio(text):
         speech_config=types.SpeechConfig(
             voice_config=types.VoiceConfig(
                 prebuilt_voice_config=types.PrebuiltVoiceConfig(
-                    voice_name="Enceladus" # <-- এই যে Enceladus সেট করা হলো
+                    # Enceladus হলো Gemini-র গভীর পুরুষকণ্ঠ (Enceladus-এর ফ্রি বিকল্প)
+                    voice_name="Enceladus" 
                 )
             )
         )
