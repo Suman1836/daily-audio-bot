@@ -20,7 +20,6 @@ jobs:
           python-version: '3.11'
 
       - name: Install libraries
-        # google-genai এবং openai লাইব্রেরি
         run: pip install google-genai openai requests
 
       - name: Run script
