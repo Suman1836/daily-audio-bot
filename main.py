@@ -91,7 +91,7 @@ def generate_script():
     - Scold me for wasting time.
     - Explain that entropy is chasing me and I need to build order (knowledge) NOW.
     
-    IMPORTANT: Respond strictly in BENGALI language only. Do not use asterisks or hashtags.
+    IMPORTANT: Respond strictly in HINDI language only. Do not use asterisks or hashtags.
     """
     try:
         response = client_deepseek.chat.completions.create(
